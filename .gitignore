@@ -1,0 +1,7 @@
+*.pyc
+Makefile
+settings.py
+*.swp
+*.bak
+sipgate_api_documentation.pdf
+example.playground.py
