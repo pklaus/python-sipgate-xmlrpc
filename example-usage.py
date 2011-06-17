@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sipgate
 import json
@@ -23,11 +24,15 @@ try:
     ### Query the history for your SIP-ID:
     history = sg.HistoryGetByDate()
     print json.dumps(history, indent=2)
+    ### Send an SMS (commented out for now in order not to send an sms all the time)
+    #recipient_number, text = '49123456789', "Hello, I'm testing the Sipgate XML-RPC API."
+    #sms = sg.SessionInitiate({'RemoteUri': 'sip:%s@sipgate.de' % recipient_number,'TOS': 'text','Content': text })
+    #print "SMS successfully sent."
 ### Error handling:
 except sipgate.SipgateAPIFault, e:
-    stderr.write( 'A problem occured: "%s" (Fault code: %d).\n' %(e.faultString, e.faultCode) )
+    stderr.write( 'A problem with an API call occured: "%s" (Fault code: %d).\n' %(e.faultString, e.faultCode) )
 except sipgate.SipgateAPISocketError, e:
-    stderr.write( 'A low level network communication error occured: %s.\n' % e)
+    stderr.write( 'A low level network communication error (socket.error) occured: %s.\n' % e)
 except sipgate.SipgateAPIException, e:
     stderr.write( 'Some other problem accured while communicating with the Sipgate API: %s' % e )
 except Exception as e:
