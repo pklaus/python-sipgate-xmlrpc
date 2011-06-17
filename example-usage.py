@@ -22,6 +22,7 @@ try:
     all_phonebook_entries = s.PhonebookEntryGet({'EntryIDList': all_entry_ids})
     ### Print all entries (they are vCards)
     print json.dumps(all_phonebook_entries, indent=2)
+    ### New API version (different URL, not for basic / plus accounts): print json.dumps( s.EventSummaryGet(), indent=2) 
 
     ### Query the history for your SIP-ID:
     history = s.HistoryGetByDate()

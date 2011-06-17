@@ -31,7 +31,7 @@ from xmlrpclib import ServerProxy, Fault, ProtocolError, ResponseError
 from exceptions import TypeError
 from socket import error as socket_error
 
-VERSION = "0.1"
+VERSION = "0.5"
 NAME = "python-sipgate-xmlrpc/sipgate.py"
 VENDOR = "https://github.com/pklaus/python-sipgate-xmlrpc"
 
@@ -124,7 +124,10 @@ RESPONSE_NOT_A_DICTIONARY = 'The response "%s" does not seem to be a response fr
 SIPGATE_API_DOC_V = '1.06'
 SIPGATE_API_DOC_D =  'August 21, 2007'
 
+# Sipgate basic and plus accounts must use this API URL:
 SIPGATE_API_URL = "https://%(username)s:%(password)s@samurai.sipgate.net/RPC2"
+# Sipgate one and team have a different URL: api.sipgate.net.
+# see <http://groups.google.com/group/sipgate-api/msg/51a3535b6d61241f>
 API_PREFIX = 'samurai.'
 
 VALID_METHODS = [
