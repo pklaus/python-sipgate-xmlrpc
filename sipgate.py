@@ -59,6 +59,8 @@ class api (ServerProxy):
         method_function = ServerProxy.__getattr__(self,methodname)
         try:
             result = method_function(params[0] if len(params)>0 and type(params[0]) is dict else dict())
+            # cast the result dictionary to a SipgateResponse (custom dictionary):
+            result = SipgateResponse(result)
         except Fault, e:
             raise SipgateAPIFault(e.faultCode, e.faultString)
         except ProtocolError, e:
@@ -66,6 +68,16 @@ class api (ServerProxy):
         except socket_error, (value,message):
             raise SipgateAPISocketError(value, message)
         return result
+
+## <http://stackoverflow.com/questions/2390827/how-to-properly-subclass-dict-and-override-get-set>
+class SipgateResponse(dict):
+    def __init__(self, response_dict):
+        try:
+            self.StatusCode, self.StatusString = int(response_dict['StatusCode']), response_dict['StatusString']
+            self.success = self.StatusCode == 200
+        except:
+            raise TypeError(RESPONSE_NOT_A_DICTIONARY % response_dict)
+        dict.__init__(self, response_dict)
 
 class _Method:
     # With the help of this class the api class does not
@@ -102,6 +114,8 @@ UNKNOWN_METHOD_MESSAGE = "The method '%(method)s' for the API prefix '%(api_pref
     "was called. This method, however, is currently not documented for the Sipgate API " + \
     "v%(api_version)s (%(api_date)s). Let's try but I've warned you.\n"
 DICT_AS_PARAM_MESSAGE = 'Please specify a dictionary as function call parameter for api.%s().'
+RESPONSE_NOT_A_DICTIONARY = 'The response "%s" does not seem to be a response from the ' + \
+    'Sipgate XML-RPC API.'
 
 ### ------ This section contains constants of the Sipgate XML-RPC API -------
 
