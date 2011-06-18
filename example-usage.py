@@ -14,7 +14,7 @@ except:
     pass
 
 try:
-    s = sipgate.api(MY_SIPGATE_USERNAME, MY_SIPGATE_PASSWORD)
+    s = sipgate.api(MY_SIPGATE_USERNAME, MY_SIPGATE_PASSWORD, 'example script')
 
     ### Query the phonebook
     phonebook = s.PhonebookListGet()

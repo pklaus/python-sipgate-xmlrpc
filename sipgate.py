@@ -30,21 +30,24 @@ from sys import stderr
 from xmlrpclib import ServerProxy, Fault, ProtocolError, ResponseError
 from exceptions import TypeError
 from socket import error as socket_error
+import re
 
-VERSION = "0.5"
-NAME = "python-sipgate-xmlrpc/sipgate.py"
+VERSION = "0.9.2"
+NAME = "%s - python-sipgate-xmlrpc/sipgate.py"
 VENDOR = "https://github.com/pklaus/python-sipgate-xmlrpc"
 
 ### ------- Here comes the most important piece of code: the api class with magic methods -----
 
 class api (ServerProxy):
-    def __init__ (self, username=False, password=False, verbose=False):
+    def __init__ (self, username=False, password=False, prog_name=False, verbose=False):
+        if not (username and password and prog_name):
+            raise SipgateAPIException('To use the class sipgate.api you must provide, username, password and a program name.')
         address = SIPGATE_API_URL % {'username':username, 'password':password}
         ### The super() call would be more modern but it doesn't work with the current Python version yet.
         #super(api, self).__init__(address, verbose=debug)
         ServerProxy.__init__(self, address,verbose=verbose)
         ### It is considered good practice to Identify the client talking to the server:
-        self.ClientIdentify({ "ClientName" : NAME, "ClientVersion" : VERSION, "ClientVendor" : VENDOR })
+        self.ClientIdentify({ "ClientName" : NAME % prog_name, "ClientVersion" : VERSION, "ClientVendor" : VENDOR })
 
     def __getattr__(self,name):
         return _Method(self.__request, name)
@@ -204,3 +207,31 @@ TYPE_OF_SERVICE = {
     'video': 'seconds',    # video communication
     'voice': 'seconds',    # voice communication
 }
+
+
+class helpers (object):
+    @staticmethod
+    def FQTN(phone_number, default_country_code):
+        """
+        Assures phone numbers are in the form of a E164 Fully Qualified Telephone Number
+        without the leading + sign.
+        The alternative would be the Python port of Google's libphonenumber:
+        https://github.com/daviddrysdale/python-phonenumbers
+        """
+        phone_number = phone_number.replace(' ','').replace('-','').replace('+','').replace('/','')
+
+        ## number starting with 00 (so it's an international format)
+        if re.compile("^00[1-9][0-9]*$").match(phone_number):
+            return phone_number[2:]
+
+        ## number starting with your country code (so it was already a FQTN):
+        if re.compile("^"+default_country_code+"[1-9][0-9]*$").match(phone_number):
+            return phone_number
+
+        if re.compile("^0[1-9]*$").match(phone_number):
+            return default_country_code+phone_number[1:]
+
+        if re.compile("^[1-9]*$").match(phone_number):
+            return phone_number
+
+        raise TypeError("Couldn't parse this phone number: "+phone_number)
