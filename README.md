@@ -1,8 +1,7 @@
 # python-sipgate-xmlrpc – Easy to use Python bindings for the sipgate XML-RPC API.
 
 python-sipgate-xmlrpc is a package of Python bindings to simplify and 
-leverage the communication with [the XML-RPC API][] of [Sipgate][], 
-the documentation file of which is [XML-RPC API documentation v1.06 2007-08-21][].
+leverage the communication with [the XML-RPC API][] of the [Sipgate][] products *sipgate basic* and *sipgate plus*.
 
 ## Project Information
 
@@ -31,14 +30,16 @@ availbale only for Sipgate one and Sipgate team customers with the newer URL
 As this Python module is intended primarily for basic / plus customers at the moment,
 the API version is still at 1.06.
 
-## Required Python modules
+## Requirements
 
-The software is tested and known to work well on **Python 2.7.1** on Mac OS X 10.6.7.
+The software is tested and known to work well on **Python 2.7.x** on Mac OS X 10.6, 10.7 and 10.8.
 <!--
 It should, however, work on any operating system that supports python.
 I also tested it on **Python 3.2** after converting the files using `2to3-3.2 -w -n *.py`.
 All examples were tested afterwards and found to be functional. 
 -->
+
+This module uses the standard Python module `xmlrpclib` that should come with any Python installation.
 
 ## Installation and Usage
 
@@ -49,8 +50,8 @@ All examples were tested afterwards and found to be functional.
 4. Have look at the [API documentation PDF][XML-RPC API documentation v1.09 2009-06-22]
    to find out what other calls you send to the API.
 
-You may also have a look at my blog post, where I presented the class:
-<http://blog.philippklaus.de/2011/06/python-sipgate-xmlrpc_easy-to-use-python-bindings-for-the-sipgate-xml-rpc-api/>.
+You may also have a look at my blog post, where I presented the class:  
+[`python-sipgate-xmlrpc` – Easy to use Python bindings for the Sipgate XML-RPC API](http://blog.philippklaus.de/2011/06/python-sipgate-xmlrpc_easy-to-use-python-bindings-for-the-sipgate-xml-rpc-api/).
 
 ## License
 
