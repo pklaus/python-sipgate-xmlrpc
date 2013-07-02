@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+This is a CLI tool to backup Sipgate account information.
+"""
+
+from sipgate import api, SipgateAPIException, helpers
+import json
+from sys import stderr, exit
+from datetime import datetime as dt
+import argparse
+import os
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+      description='Backup phonebook and call history of your Sipgate Basic account.'
+    )
+    parser.add_argument('-u', '--username',
+            help="Your 'Sipgate basic' username.")
+    parser.add_argument('-p', '--password',
+            help="Your 'Sipgate basic' password.")
+    parser.add_argument('backup_dir', metavar='BACKUP_DIR',
+            help='The directory to store the backup files in.')
+    args = parser.parse_args()
+
+    # Determining username and password
+    username = args.username
+    password = args.password
+    if not (username and password):
+        try:
+            import settings
+            username = settings.MY_SIPGATE_USERNAME
+            password = settings.MY_SIPGATE_PASSWORD
+        except:
+            parser.error('Please provide either a username and a password or save them in settings.py.')
+
+    # Checking the backup directory
+    if not os.path.isdir(args.backup_dir):
+        parser.error('The backup directory does not exist.')
+
+    # Starting the backup process
+    try:
+        s = api(username, password, 'backup script')
+    
+        timestring = dt.now().strftime('%Y-%m-%d_%H-%M-%S')
+        
+        ### Query the phonebook
+        phonebook = s.PhonebookListGet()
+        all_entry_ids = [entry['EntryID'] for entry in phonebook['PhonebookList']]
+        all_phonebook_entries = s.PhonebookEntryGet({'EntryIDList': all_entry_ids})
+        filepath = os.path.join(args.backup_dir, timestring + '_phonebook.json')
+        with open(filepath , 'w') as jsonfile:
+            json.dump(all_phonebook_entries, jsonfile, ensure_ascii=False, indent=2)
+    
+        ### Query the call history
+        history = s.HistoryGetByDate()
+        filepath = os.path.join(args.backup_dir, timestring + '_call-history.json')
+        with open(filepath, 'w') as jsonfile:
+            json.dump(history, jsonfile, ensure_ascii=False, indent=2)
+    
+    # Error handling:
+    except SipgateAPIException, e:
+        helpers.ShowSipgateErrors(e)
+        exit(2)
+    except Exception as e:
+        stderr.write('An unpredicted problem of the type %s occured: %s' % (type(e), e) )
+        exit(3)
+

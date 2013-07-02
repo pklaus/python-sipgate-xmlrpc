@@ -5,3 +5,5 @@ settings.py
 *.bak
 sipgate_api_documentation.pdf
 example.playground.py
+backups/*
+
