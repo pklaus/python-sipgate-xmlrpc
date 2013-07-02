@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sipgate
+from sipgate import api, SipgateAPIException, helpers
 import json
 from sys import stderr
 
@@ -14,7 +14,7 @@ except:
     pass
 
 try:
-    s = sipgate.api(MY_SIPGATE_USERNAME, MY_SIPGATE_PASSWORD, 'example script')
+    s = api(MY_SIPGATE_USERNAME, MY_SIPGATE_PASSWORD, 'example script')
 
     ### Query the phonebook
     phonebook = s.PhonebookListGet()
@@ -67,16 +67,10 @@ try:
     print json.dumps(s.UserdataGreetingGet(), indent=2)
 
 ### Error handling:
-except sipgate.SipgateAPIProtocolError, e:
-    if e.errcode == 401:
-        stderr.write( 'The credentials you provided are incorrect: "%s" (Fault code: %d).\n' %(e.errmsg, e.errcode) )
-    else:
-        stderr.write( 'A protocol error occured when calling the API: "%s" (Fault code: %d).\n' %(e.errmsg, e.errcode) )
-except sipgate.SipgateAPIFault, e:
-    stderr.write( 'A problem with an API call occured: "%s" (Fault code: %d).\n' %(e.faultString, e.faultCode) )
-except sipgate.SipgateAPISocketError, e:
-    stderr.write( 'A low level network communication error (socket.error) occured: %s.\n' % e)
-except sipgate.SipgateAPIException, e:
-    stderr.write( 'Some other problem accured while communicating with the Sipgate API: %s' % e )
+except SipgateAPIException, e:
+    helpers.ShowSipgateErrors(e)
+    exit(2)
 except Exception as e:
     stderr.write( 'A unpredicted problem of the type %s occured: %s' % (type(e), e) )
+    exit(3)
+

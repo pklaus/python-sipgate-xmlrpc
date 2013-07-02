@@ -19,22 +19,31 @@
 # along with python-sipgate-xmlrpc. If not, see <http://www.gnu.org/licenses/>.
 
 
-#####################################################################
-###### This the most important file of the project:           #######
-###### It contains the classe api, which                  #######
-###### implements the XML-RPC communication with the          #######
-###### Sipgate API.                                           #######
+"""
+This file is the Python module sipgate.
 
-#from time import time
+Sipgate is a telco providing SIP services to customers in Germany, Austria, UK and US.
+A product they offer in Germany is *Sipgate basic* which is a cheap and reliable SIP
+account for private customers including a number from a local phone network in Germany.
+
+This Python module makes it easy for you to use Sipgate's API for the *basic* product.
+The class `api` is the implementation of the XML-RPC communication with the API.
+"""
+
+VERSION = "0.9.8"
+NAME = "%s - python-sipgate-xmlrpc/sipgate.py"
+VENDOR = "https://github.com/pklaus/python-sipgate-xmlrpc"
+
+# Currently the following version of the Sipgate API is implemented:
+SIPGATE_API_DOC_V = '1.06'
+SIPGATE_API_DOC_D =  'August 21, 2007'
+# (As taken from Sipgate's PDF API description.)
+
 from sys import stderr
 from xmlrpclib import ServerProxy, Fault, ProtocolError, ResponseError
 from exceptions import TypeError
 from socket import error as socket_error
 import re
-
-VERSION = "0.9.2"
-NAME = "%s - python-sipgate-xmlrpc/sipgate.py"
-VENDOR = "https://github.com/pklaus/python-sipgate-xmlrpc"
 
 ### ------- Here comes the most important piece of code: the api class with magic methods -----
 
@@ -121,11 +130,6 @@ RESPONSE_NOT_A_DICTIONARY = 'The response "%s" does not seem to be a response fr
     'Sipgate XML-RPC API.'
 
 ### ------ This section contains constants of the Sipgate XML-RPC API -------
-
-# This constant represents the version of the currently implemented Sipgate API
-# ans is taken from the API description PDF:
-SIPGATE_API_DOC_V = '1.06'
-SIPGATE_API_DOC_D =  'August 21, 2007'
 
 # Sipgate basic and plus accounts must use this API URL:
 SIPGATE_API_URL = "https://%(username)s:%(password)s@samurai.sipgate.net/RPC2"
@@ -235,3 +239,19 @@ class helpers (object):
             return phone_number
 
         raise TypeError("Couldn't parse this phone number: "+phone_number)
+
+    @staticmethod
+    def ShowSipgateErrors(error):
+        """ Handles error output for different kinds of SipgateAPIExceptions. """
+        if isinstance(error, SipgateAPIProtocolError):
+            if error.errcode == 401:
+                stderr.write( 'The credentials you provided are incorrect: "%s" (Fault code: %d).\n' %(error.errmsg, error.errcode) )
+            else:
+                stderr.write( 'A protocol error occured when calling the API: "%s" (Fault code: %d).\n' %(error.errmsg, error.errcode) )
+        elif isinstance(error, SipgateAPIFault):
+            stderr.write( 'A problem with an API call occured: "%s" (Fault code: %d).\n' %(error.faultString, error.faultCode) )
+        elif isinstance(error, SipgateAPISocketError):
+            stderr.write( 'A low level network communication error (socket.error) occured: %s.\n' % error)
+        elif isinstance(error, SipgateAPIException):
+            stderr.write( 'Some other problem accured while communicating with the Sipgate API: %s' % error )
+
